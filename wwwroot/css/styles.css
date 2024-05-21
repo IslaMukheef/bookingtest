@@ -1,0 +1,11 @@
+.container{
+    
+    padding-top: 30px;
+}
+.card-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
+}

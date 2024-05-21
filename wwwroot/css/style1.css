@@ -1,0 +1,41 @@
+body {
+    background-color: #f8f9fa;
+    font-family: Arial, sans-serif;
+}
+
+.sign-in-form {
+    max-width: 400px;
+    width: 100%;
+    padding: 20px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.sign-in-form img {
+    max-width: 200px;
+}
+
+.sign-in-form h2 {
+    margin-bottom: 20px;
+    font-size: 1.5rem;
+}
+
+.sign-in-form .form-group {
+    margin-bottom: 15px;
+}
+
+.sign-in-form .alternative-signin p {
+    margin: 15px 0;
+}
+
+.sign-in-form .btn-outline-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 120px;
+}
+
+.sign-in-form .btn-outline-secondary i {
+    margin-right: 8px;
+}
