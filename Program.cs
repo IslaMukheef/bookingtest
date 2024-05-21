@@ -2,6 +2,7 @@ using backend;
 using backend.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,30 +10,40 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddSingleton<IPasswordHasher, PasswordHasher>();
 builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<ApplicationDbContext>();
-builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-                .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme);
-Console.WriteLine("#######################");
-
+builder.Services.AddAuthentication(x =>
+{
+	x.RequireAuthenticatedSignIn = false;
+	x.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+})
+				.AddCookie(x =>
+				{
+					x.LogoutPath = "/account/signout";
+				});
 var app = builder.Build();
-Console.WriteLine("#######################");
 app.UseAuthentication();
 using (var serviceScope = app.Services.GetRequiredService<IServiceScopeFactory>().CreateScope())
 {
-    Console.WriteLine("#######################");
-    Console.WriteLine("Migrations ON PROCESS");
-    Console.WriteLine("#######################");
-    var context = serviceScope.ServiceProvider.GetService<ApplicationDbContext>()!;
-    context.Database.EnsureCreated();
-    Console.WriteLine("Create Complete");
+
+	var context = serviceScope.ServiceProvider.GetService<ApplicationDbContext>()!;
+	context.Database.EnsureCreated();
 
 }
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-    app.UseHsts();
+	app.UseExceptionHandler("/Home/Error");
+	// The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+	app.UseHsts();
 }
+Directory.CreateDirectory("assets");
+
+app.UseStaticFiles(new StaticFileOptions()
+{
+
+	RequestPath = "/assets",
+	FileProvider = new PhysicalFileProvider(
+		   Path.Combine(builder.Environment.ContentRootPath, "assets")),
+});
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
@@ -42,7 +53,7 @@ app.UseRouting();
 app.UseAuthorization();
 
 app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+	name: "default",
+	pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();

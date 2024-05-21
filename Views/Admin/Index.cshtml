@@ -1,0 +1,150 @@
+﻿@using Microsoft.EntityFrameworkCore
+@{
+	Layout = null;
+	@inject ApplicationDbContext db;
+	var houses = db.Houses.Include(x => x.City).ToList();
+	var cities = db.Cities.ToList();
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Admin Panel</title>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+	<link rel="stylesheet" href="css/styles.css">
+	<style>
+		.img-preview {
+			width: 500px;
+			height: 600px;
+			object-fit: cover;
+		}
+
+		.img-thumbnail {
+			width: 100px;
+			height: auto;
+		}
+	</style>
+</head>
+<body>
+	<nav class="navbar navbar-expand-lg navbar-light" style="background-color: #003B95;">
+		<div class="container">
+			<a class="navbar-brand" style="color: white;" href="/">Booking.com</a>
+			<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+					aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+			</button>
+		</div>
+	</nav>
+
+	<div class="container mt-5">
+		<h2>Manage Content</h2>
+		<button class="btn btn-success mb-3" data-toggle="modal" data-target="#addPropertyModal">Add New Property</button>
+		<!-- Example content management table -->
+		<table class="table table-dark table-striped">
+			<thead>
+				<tr>
+					<th>#</th>
+					<th>Image</th>
+					<th>Title</th>
+					<th>Description</th>
+					<th>Price Per Day</th>
+					<th>City</th>
+					<th>Actions</th>
+				</tr>
+			</thead>
+			<tbody id="propertyTableBody">
+				<!-- Sample row -->
+				@foreach (var house in houses)
+				{
+					<tr>
+						<td>@house.Id</td>
+						<td><img src="/assets/@(house.Id).png" class="img-thumbnail"></td>
+						<td>@house.HouseTitle</td>
+						<td>@house.Description</td>
+						<td>@house.PricePerDay</td>
+						<td>@house.City.CityName</td>
+						<td>
+							<form asp-action="Delete" method="POST" style="display:inline;">
+								<input type="hidden" name="Id" value="@house.Id">
+								<button type="submit" class="btn btn-danger btn-sm">Delete</button>
+							</form>
+						</td>
+					</tr>
+				}
+
+				<!-- Repeat for other content -->
+			</tbody>
+		</table>
+	</div>
+
+	<!-- Add Property Modal -->
+	<div class="modal fade" id="addPropertyModal" tabindex="-1" aria-labelledby="addPropertyModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="addPropertyModalLabel">Add New Property</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<form asp-action="Add" method="POST" enctype="multipart/form-data">
+						<div class="form-group">
+							<label for="title">Title</label>
+							<input type="text" class="form-control" id="title" name="title" required>
+						</div>
+						<div class="form-group">
+							<label for="description">Description</label>
+							<textarea class="form-control" id="description" name="description" rows="3" required></textarea>
+						</div>
+						<div class="form-group">
+							<label for="price">Price</label>
+							<input type="number" class="form-control" id="price" name="price" required>
+						</div>
+						<div class="form-group">
+							<label for="city">City</label>
+							<select class="form-control" id="city" name="cityId" required>
+
+								@foreach (var city in cities)
+								{
+									<option value=@city.Id>@city.CityName</option>
+								}
+							</select>
+						</div>
+						<div class="form-group">
+							<label for="image">Image</label>
+							<input type="file" class="form-control-file" id="image" name="image" accept="image/*" required>
+						</div>
+						<button type="submit" class="btn btn-primary">Add Property</button>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+	<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/@@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+	<script>
+		// Populate the edit form with current property details including image preview
+		$('#editPropertyModal').on('show.bs.modal', function (event) {
+			var button = $(event.relatedTarget);
+			var id = button.data('id');
+			var title = button.data('title');
+			var description = button.data('description');
+			var price = button.data('price');
+			var city = button.data('city');
+			var image = button.data('image');
+
+			var modal = $(this);
+			modal.find('#editPropertyId').val(id);
+			modal.find('#editTitle').val(title);
+			modal.find('#editDescription').val(description);
+			modal.find('#editPrice').val(price);
+			modal.find('#editCity').val(city);
+			modal.find('#currentImagePreview').attr('src', image).show();
+		});
+	</script>
+</body>
+</html>

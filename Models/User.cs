@@ -15,7 +15,6 @@ public class User
 
     public bool IsAdmin { get; set; } = false;
 
-    public virtual ICollection<House> Houses { get; set; } = new HashSet<House>();
     public virtual ICollection<BookingSession> BookingSessions { get; set; } = new HashSet<BookingSession>();
 
 
